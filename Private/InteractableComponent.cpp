@@ -1,7 +1,17 @@
 ﻿// SPDX-License-Identifier: CC-BY-NC-4.0 GitHub@Dobro3 You are free to use, modify, and share this code for non-commercial purposes only. Selling this code or derivatives is not permitted. For details, see: https://creativecommons.org/licenses/by-nc/4.0/
 
 
-#include "InteractionInterface.h"
+#include "InteractableComponent.h"
 
 
-// Add default functionality here for any IInteractionInterface functions that are not pure virtual.
+UInteractableComponent::UInteractableComponent()
+{
+	PrimaryComponentTick.bCanEverTick = false;
+}
+
+bool UInteractableComponent::CanInteract_Implementation() const
+{
+	return true;
+}
+
+

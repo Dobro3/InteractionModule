@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// SPDX-License-Identifier: CC-BY-NC-4.0 GitHub@Dobro3 You are free to use, modify, and share this code for non-commercial purposes only. Selling this code or derivatives is not permitted. For details, see: https://creativecommons.org/licenses/by-nc/4.0/
 
 #pragma once
 
@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "InteractionInterface.generated.h"
 
+class UInteractableComponent;
 // This class does not need to be modified.
 UINTERFACE()
 class UInteractionInterface : public UInterface
@@ -14,12 +15,13 @@ class UInteractionInterface : public UInterface
 };
 
 /**
- * 
+ * Interface that is required for every interactable Actor to use.
  */
 class INTERACTIONMODULE_API IInteractionInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure)
+	UInteractableComponent* GetInteractableComponent() const;
 };

@@ -10,6 +10,7 @@ public class InteractionModule : ModuleRules
             new string[]
             {
                 "Core",
+                "DeveloperSettings"
             }
         );
 
