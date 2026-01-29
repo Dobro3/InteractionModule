@@ -6,8 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "InteractionComponent.generated.h"
 
-
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+/// Interaction component that Must be inside a Player controller.
+UCLASS(ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
 class INTERACTIONMODULE_API UInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -22,6 +22,5 @@ protected:
 
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };
