@@ -13,7 +13,7 @@ class UInteractionComponent;
  * Basic class for interaction actions.
  * Might be helpful to prevent code duplication as a single chunk of reusable logic.
  */
-UCLASS(DefaultToInstanced, EditInlineNew, Abstract, ClassGroup=(Interaction))
+UCLASS(DefaultToInstanced, EditInlineNew, Abstract, Blueprintable, BlueprintType, ClassGroup=(Interaction))
 class INTERACTIONMODULE_API UInteractAction : public UObject
 {
 	GENERATED_BODY()
@@ -22,10 +22,23 @@ public:
 	/// Starts an interaction. Might end as soon as it was started or continue in time.
 	UFUNCTION(BlueprintNativeEvent, Category=Interaction)
 	void StartInteraction(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler);
-	virtual void StartInteraction_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler) {}
 
 	/// Ends an interaction signalizing that it is no more active.
 	UFUNCTION(BlueprintNativeEvent, Category=Interaction)
 	void EndInteraction(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler);
-	virtual void EndInteraction_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler) {}
+
+	UFUNCTION(BlueprintGetter)
+	FORCEINLINE bool GetIsRunning() const { return bIsRunning; }
+
+	UFUNCTION(BlueprintNativeEvent, Category=Interaction)
+	bool CanInteract(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler);
+	virtual bool CanInteract_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler) { return true; }
+	
+protected:
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+protected:
+	UPROPERTY(Replicated, BlueprintGetter=GetIsRunning)
+	bool bIsRunning = false;
 };

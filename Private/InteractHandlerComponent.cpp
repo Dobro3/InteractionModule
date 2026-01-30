@@ -6,6 +6,8 @@
 #include "Conditions/InteractionCondition.h"
 #include "InteractionComponent.h"
 #include "Actions/InteractAction.h"
+#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
 
 
 UInteractHandlerComponent::UInteractHandlerComponent()
@@ -31,6 +33,16 @@ bool UInteractHandlerComponent::TryInteract(UInteractionComponent* InteractionCo
 	return false;
 }
 
+void UInteractHandlerComponent::EndInteraction(UInteractionComponent* InteractionComponent)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	CallEndInteractInternal(InteractionComponent);
+}
+
 void UInteractHandlerComponent::CallInteractInternal_Implementation(UInteractionComponent* InteractionComponent)
 {
 	if (IsValid(InteractAction))
@@ -41,13 +53,23 @@ void UInteractHandlerComponent::CallInteractInternal_Implementation(UInteraction
 	OnInteractStarted.Broadcast(InteractionComponent, this);
 }
 
+void UInteractHandlerComponent::CallEndInteractInternal_Implementation(UInteractionComponent* InteractionComponent)
+{
+	if (IsValid(InteractAction))
+	{
+		InteractAction->EndInteraction(InteractionComponent, this);
+	}
+
+	OnInteractEnded.Broadcast(InteractionComponent, this);
+}
+
 void UInteractHandlerComponent::SetInteractionCondition(UInteractionCondition* NewCondition)
 {
 	/// No checks for now.
 	InteractionCondition = NewCondition;
 }
 
-void UInteractHandlerComponent::SetInteractionAction(UInteractAction* NewAction)
+void UInteractHandlerComponent::SetInteractAction(UInteractAction* NewAction)
 {
 	/// No checks for now.
 	InteractAction = NewAction;
@@ -62,14 +84,39 @@ void UInteractHandlerComponent::SetNewAimer(UInteractionComponent* NewAimer)
 	}
 }
 
+void UInteractHandlerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UInteractHandlerComponent, InteractAction);
+	DOREPLIFETIME(UInteractHandlerComponent, InteractionCondition);
+}
+
+bool UInteractHandlerComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch,
+	FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	if (IsValid(InteractAction))
+	{
+		bWroteSomething |= Channel->ReplicateSubobject(InteractAction, *Bunch, *RepFlags);
+	}
+	if (IsValid(InteractionCondition))
+	{
+		bWroteSomething |= Channel->ReplicateSubobject(InteractionCondition, *Bunch, *RepFlags);
+	}
+
+	return bWroteSomething;
+}
+
 bool UInteractHandlerComponent::CanInteract_Implementation(UInteractionComponent* InteractionComponent)
 {
-	if (!IsValid(InteractionCondition))
+	if (!IsValid(InteractionCondition) || !IsValid(InteractAction))
 	{
 		return false;
 	}
 
-	return InteractionCondition->CanInteract(InteractionComponent, this);
+	return InteractionCondition->CanInteract(InteractionComponent, this) && InteractAction->CanInteract(InteractionComponent, this);
 }
 
 

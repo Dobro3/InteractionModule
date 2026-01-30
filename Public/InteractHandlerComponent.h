@@ -25,18 +25,34 @@ public:
 	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable, Category = Interaction)
 	bool TryInteract(UInteractionComponent* InteractionComponent);
 
+	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable, Category = Interaction)
+	void EndInteraction(UInteractionComponent* InteractionComponent);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintCosmetic, Category = Interaction)
 	FORCEINLINE UInteractionComponent* GetCurrentAimer() const { return CurrentAimer; }
 
 	UFUNCTION(NetMulticast, Reliable)
 	void CallInteractInternal(UInteractionComponent* InteractionComponent);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void CallEndInteractInternal(UInteractionComponent* InteractionComponent);
 
+	UFUNCTION(BlueprintSetter)
 	void SetInteractionCondition(UInteractionCondition* NewCondition);
 
-	void SetInteractionAction(UInteractAction* NewAction);
+	UFUNCTION(BlueprintSetter)
+	void SetInteractAction(UInteractAction* NewAction);
+
+	UFUNCTION(BlueprintGetter)
+	FORCEINLINE UInteractAction* GetInteractAction() const { return InteractAction; } 
 
 	void SetNewAimer(UInteractionComponent* NewAimer);
 
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	
 public:
 	/// Called locally when someone start/end aiming on this for decorative purposes.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAimChanged, UInteractionComponent*, NewCurrentAimer);
@@ -55,13 +71,12 @@ public:
 	FOnInteractSignature OnInteractEnded;
 	
 protected:
-	/// TODO: Replace with array? 
 	/// Condition to check if it is ready to interact.
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Replicated, BlueprintSetter=SetInteractionCondition)
 	TObjectPtr<UInteractionCondition> InteractionCondition;
 
 	/// Action to call when interacted. 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, BlueprintGetter=GetInteractAction, BlueprintSetter=SetInteractAction, Replicated, Instanced)
 	TObjectPtr<UInteractAction> InteractAction;
 
 	/// Who currently wants to interact with it (aim at it).

@@ -8,7 +8,7 @@
 
 class UInteractHandlerComponent;
 /// Interaction component that Must be inside a Player controller.
-UCLASS(ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Interaction), BlueprintType, meta=(BlueprintSpawnableComponent))
 class INTERACTIONMODULE_API UInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -33,6 +33,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = Interaction)
 	void TryInteractWithHandler(UInteractHandlerComponent* InteractHandler);
+
+	UFUNCTION(BlueprintCallable, Category = Interaction)
+	void TryEndInteractWithCurrentTarget();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, Category = Interaction)
+	void TryEndInteractWithHandler(UInteractHandlerComponent* InteractHandler);
 	
 protected:
 	virtual void BeginPlay() override;

@@ -54,6 +54,23 @@ void UInteractionComponent::TryInteractWithCurrentTarget()
 	}
 }
 
+void UInteractionComponent::TryEndInteractWithCurrentTarget()
+{
+	if (IsValid(CurrentTarget))
+	{
+		/// TODO: Too much RPCs, need to add some client check also to not spam out of the box.
+		TryEndInteractWithHandler(CurrentTarget);
+	}
+}
+
+void UInteractionComponent::TryEndInteractWithHandler_Implementation(UInteractHandlerComponent* InteractHandler)
+{
+	if (IsValid(InteractHandler))
+	{
+		InteractHandler->EndInteraction(this);
+	}
+}
+
 void UInteractionComponent::TryInteractWithHandler_Implementation(UInteractHandlerComponent* InteractHandler)
 {
 	if (IsValid(InteractHandler))

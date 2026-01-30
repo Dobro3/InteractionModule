@@ -3,10 +3,14 @@
 
 #include "Actions/InstantInteractAction.h"
 
+#include "InteractHandlerComponent.h"
+
 void UInstantInteractAction::StartInteraction_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler)
 {
 	Super::StartInteraction_Implementation(InteractionComponent, InteractHandler);
 
-	/// TODO:
-	//InteractHandler->EndInteract();?
+	if (IsValid(InteractHandler) && InteractHandler->GetOwnerRole() == ROLE_Authority)
+	{
+		InteractHandler->EndInteraction(InteractionComponent);
+	}
 }

@@ -23,4 +23,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	bool CanInteract(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler);
 	virtual bool CanInteract_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler) { return false; }
+
+protected:
+	virtual bool IsSupportedForNetworking() const override { return true; }
 };
