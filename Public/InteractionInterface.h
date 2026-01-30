@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "InteractionInterface.generated.h"
 
-class UInteractableComponent;
+class UInteractHandlerComponent;
 // This class does not need to be modified.
 UINTERFACE()
 class UInteractionInterface : public UInterface
@@ -22,6 +22,6 @@ class INTERACTIONMODULE_API IInteractionInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure)
-	UInteractableComponent* GetInteractableComponent() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UInteractHandlerComponent* GetInteractableComponent() const;
 };

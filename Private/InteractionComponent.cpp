@@ -3,6 +3,8 @@
 
 #include "InteractionComponent.h"
 
+#include "InteractHandlerComponent.h"
+#include "InteractionInterface.h"
 #include "InteractionModule.h"
 #include "InteractionSettings.h"
 
@@ -41,6 +43,23 @@ APlayerController* UInteractionComponent::GetOwnerPlayerController() const
 	return nullptr;
 }
 
+
+void UInteractionComponent::TryInteractWithCurrentTarget()
+{
+	/// We call for try interact even if locally we think it might not want it, cause client might not be right on that part.
+	if (IsValid(CurrentTarget))
+	{
+		TryInteractWithHandler(CurrentTarget);
+	}
+}
+
+void UInteractionComponent::TryInteractWithHandler_Implementation(UInteractHandlerComponent* InteractHandler)
+{
+	if (IsValid(InteractHandler))
+	{
+		InteractHandler->TryInteract(this);
+	}
+}
 
 void UInteractionComponent::BeginPlay()
 {
@@ -95,10 +114,15 @@ void UInteractionComponent::FindInteractTarget()
 	
 	GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, InteractionChannel, Params);
 
+	UInteractHandlerComponent* InteractHandler = TryGetInteractHandler(Hit.GetActor());
+	const bool bReadyForInteract = IsTargetReadyForInteract(InteractHandler); 
+
 	if (CVarInteractionDrawDebug.GetValueOnAnyThread())
 	{
-		DrawDebugTrace(Hit, CameraLocation, TraceEnd, CameraRotation);
+		DrawDebugTrace(Hit, CameraLocation, TraceEnd, CameraRotation, bReadyForInteract);
 	}
+
+	SetCurrentTarget(InteractHandler);
 }
 
 bool UInteractionComponent::CheckSetupCorrectly() const
@@ -117,20 +141,50 @@ bool UInteractionComponent::ShouldLookForInteract() const
 	return OwningPlayer->IsLocalController();
 }
 
-void UInteractionComponent::DrawDebugTrace(const FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd, const FRotator& CameraRotation)
+void UInteractionComponent::DrawDebugTrace(const FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd,
+	const FRotator& CameraRotation, bool bCanInteract)
 {
 #if !UE_BUILD_SHIPPING
 	/// Trace from center of screen would be invisible, need to adjust a bit.
 	const FVector DrawStartOffset = CameraRotation.RotateVector(FVector::RightVector) * 3.f;
-	const FColor TraceColor = IsValid(HitResult.GetActor()) ? FColor::Green : FColor::Red;
+	const FColor TraceColor = bCanInteract ? FColor::Green : FColor::Red;
 
 	/// TODO: different color depending on interaction possibility.
 	DrawDebugLine(GetWorld(), TraceStart + DrawStartOffset, TraceEnd, TraceColor, false, -1, 0, 1);
 
 	if (IsValid(HitResult.GetActor()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Interact target: %s"), *GetNameSafe(HitResult.GetActor())));
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, TraceColor, FString::Printf(TEXT("Interact target: %s"), *GetNameSafe(HitResult.GetActor())));
 	}
 #endif
+}
+
+UInteractHandlerComponent* UInteractionComponent::TryGetInteractHandler(const AActor* TargetActor) const
+{
+	 return IsValid(TargetActor) && TargetActor->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()) ?
+		IInteractionInterface::Execute_GetInteractableComponent(TargetActor) : nullptr;
+}
+
+bool UInteractionComponent::IsTargetReadyForInteract(UInteractHandlerComponent* InteractTarget)
+{
+	return IsValid(InteractTarget) ? InteractTarget->CanInteract(this) : false;
+}
+
+void UInteractionComponent::SetCurrentTarget(UInteractHandlerComponent* NewTargetActor)
+{
+	if (CurrentTarget != NewTargetActor)
+	{
+		if (IsValid(CurrentTarget))
+		{
+			CurrentTarget->SetNewAimer(nullptr);
+		}
+		
+		CurrentTarget = NewTargetActor;
+		
+		if (IsValid(CurrentTarget))
+		{
+			CurrentTarget->SetNewAimer(this);
+		}
+	}
 }
 

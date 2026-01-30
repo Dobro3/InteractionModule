@@ -1,17 +1,10 @@
 ﻿// SPDX-License-Identifier: CC-BY-NC-4.0 GitHub@Dobro3 You are free to use, modify, and share this code for non-commercial purposes only. Selling this code or derivatives is not permitted. For details, see: https://creativecommons.org/licenses/by-nc/4.0/
 
 
-#include "InteractableComponent.h"
+#include "Conditions/Examples/InteractionConditionAlwaysCan.h"
 
-
-UInteractableComponent::UInteractableComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
-
-bool UInteractableComponent::CanInteract_Implementation() const
+bool UInteractionConditionAlwaysCan::CanInteract_Implementation(UInteractionComponent* InteractionComponent,
+	UInteractHandlerComponent* InteractableComponent)
 {
 	return true;
 }
-
-
