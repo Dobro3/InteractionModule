@@ -47,12 +47,6 @@ protected:
 
 	void DrawDebugTrace(const FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd, const FRotator& CameraRotation, bool bCanInteract);
 
-	/// Check if this target possibly can be interacted with.
-	UInteractHandlerComponent* TryGetInteractHandler(const AActor* TargetActor) const;
-	
-	/// Check if this target actually wants to interact.
-	bool IsTargetReadyForInteract(UInteractHandlerComponent* InteractTarget);
-
 	void SetCurrentTarget(UInteractHandlerComponent* NewTargetActor);
 	
 protected:

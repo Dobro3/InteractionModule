@@ -4,6 +4,7 @@
 #include "InteractionComponent.h"
 
 #include "InteractHandlerComponent.h"
+#include "InteractionHelpers.h"
 #include "InteractionInterface.h"
 #include "InteractionModule.h"
 #include "InteractionSettings.h"
@@ -109,13 +110,11 @@ void UInteractionComponent::FindInteractTarget()
 	FHitResult Hit;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(GetOwner());
-
-	FCollisionResponseParams ResponseParams;
 	
 	GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, InteractionChannel, Params);
 
-	UInteractHandlerComponent* InteractHandler = TryGetInteractHandler(Hit.GetActor());
-	const bool bReadyForInteract = IsTargetReadyForInteract(InteractHandler); 
+	UInteractHandlerComponent* InteractHandler = UInteractionHelpers::TryGetInteractHandler(Hit.GetActor());
+	const bool bReadyForInteract = UInteractionHelpers::IsTargetReadyForInteract(this, InteractHandler); 
 
 	if (CVarInteractionDrawDebug.GetValueOnAnyThread())
 	{
@@ -157,17 +156,6 @@ void UInteractionComponent::DrawDebugTrace(const FHitResult& HitResult, const FV
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, TraceColor, FString::Printf(TEXT("Interact target: %s"), *GetNameSafe(HitResult.GetActor())));
 	}
 #endif
-}
-
-UInteractHandlerComponent* UInteractionComponent::TryGetInteractHandler(const AActor* TargetActor) const
-{
-	 return IsValid(TargetActor) && TargetActor->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()) ?
-		IInteractionInterface::Execute_GetInteractableComponent(TargetActor) : nullptr;
-}
-
-bool UInteractionComponent::IsTargetReadyForInteract(UInteractHandlerComponent* InteractTarget)
-{
-	return IsValid(InteractTarget) ? InteractTarget->CanInteract(this) : false;
 }
 
 void UInteractionComponent::SetCurrentTarget(UInteractHandlerComponent* NewTargetActor)

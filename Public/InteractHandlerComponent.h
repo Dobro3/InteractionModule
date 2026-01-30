@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable, Category = Interaction)
 	bool TryInteract(UInteractionComponent* InteractionComponent);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintCosmetic, Category = Interaction)
+	FORCEINLINE UInteractionComponent* GetCurrentAimer() const { return CurrentAimer; }
+
 	UFUNCTION(NetMulticast, Reliable)
 	void CallInteractInternal(UInteractionComponent* InteractionComponent);
 
@@ -63,7 +66,7 @@ protected:
 
 	/// Who currently wants to interact with it (aim at it).
 	/// Cosmetic.
-	UPROPERTY(Transient, BlueprintReadOnly, Category = Interaction)
+	UPROPERTY(Transient, BlueprintGetter=GetCurrentAimer, Category = Interaction)
 	TObjectPtr<UInteractionComponent> CurrentAimer;
 
 };

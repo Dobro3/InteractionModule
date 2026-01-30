@@ -7,6 +7,7 @@
 #include "InteractionInterface.generated.h"
 
 class UInteractHandlerComponent;
+
 // This class does not need to be modified.
 UINTERFACE()
 class UInteractionInterface : public UInterface
