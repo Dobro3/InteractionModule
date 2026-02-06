@@ -23,11 +23,6 @@ void UHoldableInteractAction::EndInteraction_Implementation(UInteractionComponen
 	}
 }
 
-bool UHoldableInteractAction::CanInteract_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler)
-{
-	return !IsValid(CurrentInteractor);
-}
-
 void UHoldableInteractAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

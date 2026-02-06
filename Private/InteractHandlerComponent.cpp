@@ -116,7 +116,7 @@ bool UInteractHandlerComponent::CanInteract_Implementation(UInteractionComponent
 		return false;
 	}
 
-	return InteractionCondition->CanInteract(InteractionComponent, this) && InteractAction->CanInteract(InteractionComponent, this);
+	return InteractionCondition->CanInteract(InteractionComponent, this);
 }
 
 

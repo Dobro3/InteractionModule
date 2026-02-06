@@ -29,10 +29,6 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	FORCEINLINE bool GetIsRunning() const { return bIsRunning; }
-
-	UFUNCTION(BlueprintNativeEvent, Category=Interaction)
-	bool CanInteract(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler);
-	virtual bool CanInteract_Implementation(UInteractionComponent* InteractionComponent, UInteractHandlerComponent* InteractHandler) { return true; }
 	
 protected:
 	virtual bool IsSupportedForNetworking() const override { return true; }

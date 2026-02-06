@@ -10,7 +10,7 @@ bool UInteractionConditionNotInUse::CanInteract_Implementation(UInteractionCompo
 {
 	if (IsValid(InteractHandler) && IsValid(InteractHandler->GetInteractAction()))
 	{
-		return InteractHandler->GetInteractAction()->CanInteract(InteractionComponent, InteractHandler);
+		return !InteractHandler->GetInteractAction()->GetIsRunning();
 	}
 
 	return false;
